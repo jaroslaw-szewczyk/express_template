@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const { create } = require('express-handlebars');
+const multer = require('multer');
+const upload = multer({dest: './public/uploads'});
 
 const app = express();
 const hbs = create({ extname: '.hbs' });
@@ -36,15 +38,15 @@ app.get('/history', (req, res) => {
   res.render('history');
 });
 
-app.post('/contact/send-message', (req, res) => {
+app.post('/contact/send-message', upload.single('projectDesign'),(req, res) => {
 
   const { author, sender, title, message } = req.body;
 
-  if(author && sender && title && message) {
-    res.send('The message has been sent!');
+  if(author && sender && title && message && req.file) {
+    res.render('contact', {isSent: true, fileDir: `/uploads/${req.file.filename}`, fileName: req.file.originalname});
   }
   else {
-    res.send('You can\'t leave fields empty!')
+    res.render('contact', {isError: true})
   }
 
 });
